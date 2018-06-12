@@ -21,29 +21,23 @@ class SOM:
      
     def __init__ (self, dataIn, grid=[10,10], alpha=0.1, sigma=None):
         dim = dataIn.shape[1]
-        self.wNodes = np.random.uniform(-1,1,[grid[0], grid[1], dim])
-        #self.wNodes = np.random.randn (grid[0], grid[1], dim)    
+        self.wNodes = np.random.uniform(-1,1,[grid[0], grid[1], dim])  
          
         self.alpha0 = alpha
         if (sigma is None):
             self.sigma0 = max(grid) / 2.0
         else:
             self.sigma0 = sigma
-         
         self.dataIn = np.asarray(dataIn)
         self.grid = grid
          
          
-    def train (self, maxIt=100, verbose=True, analysis=False, timeSleep = 0.5):
+    def train (self, maxIt=100, verbose=True, timeSleep = 0.5):
         nSamples = self.dataIn.shape[0]
         m = self.wNodes.shape[0]        
         n = self.wNodes.shape[1]        
-     
-     
         # A constante de tempo é computada apenas uma vez
-        timeCte = (maxIt/np.log(self.sigma0))        
-        if analysis:
-            print ('cteTempo = '), timeCte
+        timeCte = (maxIt/np.log(self.sigma0))
              
         timeInit = 0       
         timeEnd = 0
@@ -57,50 +51,26 @@ class SOM:
                  
             timeInit = time()
  
-            for k in range(nSamples):    
-                 
-                # Getting the winner node
+            for k in range(nSamples):
+                # Pegando o Node vencedor
                 matDist = self.distance (self.dataIn[k,:], self.wNodes)
                 posWin = self.getWinNodePos(matDist)                              
-                 
                 deltaW  = 0               
-                h = 0   
-                           
+                h = 0     
                  
                 for i in range(m):
                     for j in range(n):      
-                        # Calcula a distância entre dois nós
+                        # Calcula a distância entre dois nodes
                         dNode = self.getDistanceNodes([i,j],posWin)                       
-                         
-                         
-                        #if dNode <= sigma: 
-                             
-                        # Calcula a influência do nó vencedor
+
+                        # Calcula a influência do node vencedor
                         h = np.exp ((-dNode**2)/(2*sigma**2))
                          
                         # Atualiza pesos
                         deltaW = (alpha*h*(self.dataIn[k,:] - self.wNodes[i,j,:]))                       
                         self.wNodes[i,j,:] += deltaW
                              
-                        if analysis:  
-                            print ('Epoch = ', epc)
-                            print ('Amostra = ', k)
-                            print ('-------------------------------') 
-                            print ('alpha = ', alpha) 
-                            print ('sigma = ', sigma)                             
-                            print ('h = ',  h) 
-                            print ('-------------------------------') 
-                            print ('Node Vencedor = [', posWin[0],', ',posWin[1],']') 
-                            print ('Node Atual = [',i,', ',j,']') 
-                            print ('dist. Nodes = ', dNode) 
-                            print ('deltaW = ', deltaW  )                       
-                            print ('wNode antes = ', self.wNodes[i,j,:]) 
-                            print ('wNode depois = ', self.wNodes[i,j,:] + deltaW) 
-                            print ( '\n'                       )
-                            sleep(timeSleep) 
-                             
             timeEnd = time()                       
-         
  
     # Método que calcula a distância entre entradas e pesos entre a matriz 3D(dist. euclidiana)
     def distance (self,a,b):
@@ -136,23 +106,21 @@ class SOM:
  
     def setTrainedSOM (self, fileName):
         self.wNodes = np.loadtxt(fileName)
- 
- 
- 
+
 # Entradas de cor e treino
 colors = np.array(
      [[0., 0., 0.],
       [0., 0., 1.],
       [0., 0., 0.5],
-      [0.1, 0.529, 1.0],
-      [0.2, 0.4, 0.67],
-      [0.3, 0.5, 1.0],
+      [0.125, 0.529, 1.0],
+      [0.33, 0.4, 0.67],
+      [0.6, 0.5, 1.0],
       [0., 1., 0.],
       [1., 0., 0.],
-      [0., 0., 1.],
+      [0., 1., 1.],
       [1., 0., 1.],
-      [1., 0., 0.],
-      [1., 0., 0.],
+      [1., 1., 0.],
+      [1., 1., 1.],
       [.33, .33, .33],
       [.5, .5, .5],
       [.66, .66, .66]])
@@ -173,7 +141,7 @@ color_names = \
 s = SOM(colors,[20,30], alpha=0.3)
 plt.imshow(s.wNodes)
  
-s.train(maxIt=30)
+s.train(maxIt=10)
  
 plt.imshow(s.wNodes)
 plt.show()
